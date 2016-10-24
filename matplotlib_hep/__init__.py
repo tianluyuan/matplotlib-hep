@@ -1,9 +1,12 @@
 from __future__ import division
 
-import numpy as np
+import logging
+from matplotlib.gridspec import GridSpec
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import scipy.stats as stats
 import scipy as sp
-import logging
+import numpy as np
 
 
 __all__ = ['histpoints', 'make_split', 'calc_nbins', 'plot_pull']
@@ -29,7 +32,8 @@ def poisson_limits(N, kind, confidence=0.6827):
     lower[N==0] = 0
     return N - lower, upper - N
 
-def histpoints(x, bins=None, xerr=None, yerr='gamma', normed=False, **kwargs):
+def histpoints(x, bins=None, xerr=None, yerr='sqrt', density=None,
+               weights=None, **kwargs):
     """
     Plot a histogram as a series of data points.
 
@@ -52,31 +56,34 @@ def histpoints(x, bins=None, xerr=None, yerr='gamma', normed=False, **kwargs):
         arrays, which are not required to be of the same length.
 
     """
-    import matplotlib.pyplot as plt
-
     if bins is None:
         bins = calc_nbins(x)
 
-    h, bins = np.histogram(x, bins=bins)
-    width = bins[1] - bins[0]
+    h, bins = np.histogram(x, bins=bins, weights=weights)
+    width = bins[1:] - bins[:-1]
     center = (bins[:-1] + bins[1:]) / 2
     area = sum(h * width)
 
-    if isinstance(yerr, str):
-        yerr = poisson_limits(h, yerr)
+    if weights is not None:
+        sumw2 = np.histogram(x, bins=bins,
+                             weights=weights**2)[0]
+    else:
+        sumw2 = h
+
+    yerr = poisson_limits(sumw2, yerr)
 
     if xerr == 'binwidth':
         xerr = width / 2
 
-    if normed:
+    if density is not None:
         h = h / area
         yerr = yerr / area
         area = 1.
 
-    if not 'color' in kwargs:
+    if 'color' not in kwargs:
         kwargs['color'] = 'black'
 
-    if not 'fmt' in kwargs:
+    if 'fmt' not in kwargs:
         kwargs['fmt'] = 'o'
 
     plt.errorbar(center, h, xerr=xerr, yerr=yerr, **kwargs)
@@ -84,9 +91,6 @@ def histpoints(x, bins=None, xerr=None, yerr='gamma', normed=False, **kwargs):
     return center, (yerr[0], h, yerr[1]), area
 
 def make_split(ratio, gap=0.12):
-    import matplotlib.pyplot as plt
-    from matplotlib.gridspec import GridSpec
-    from matplotlib.ticker import MaxNLocator
     cax = plt.gca()
     box = cax.get_position()
     xmin, ymin = box.xmin, box.ymin
@@ -101,11 +105,6 @@ def make_split(ratio, gap=0.12):
     return ax, bx
 
 def plot_pull(data, func):
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import MaxNLocator
-
     ax, bx = make_split(0.8)
 
     plt.sca(ax)
