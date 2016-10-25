@@ -32,7 +32,7 @@ def poisson_limits(N, kind, confidence=0.6827):
     lower[N==0] = 0
     return N - lower, upper - N
 
-def histpoints(x, bins=None, xerr=None, yerr='sqrt', density=None,
+def histpoints(x, bins=None, xerr='binwidth', yerr='sqrt', density=None,
                weights=None, **kwargs):
     """
     Plot a histogram as a series of data points.
@@ -64,7 +64,7 @@ def histpoints(x, bins=None, xerr=None, yerr='sqrt', density=None,
     center = (bins[:-1] + bins[1:]) / 2
     area = sum(h * width)
 
-    if weights is not None:
+    if weights is not None and yerr == 'sumw2':
         sumw2 = np.histogram(x, bins=bins,
                              weights=weights**2)[0]
     else:
@@ -86,7 +86,7 @@ def histpoints(x, bins=None, xerr=None, yerr='sqrt', density=None,
     if 'fmt' not in kwargs:
         kwargs['fmt'] = 'o'
 
-    plt.errorbar(center, h, xerr=xerr, yerr=yerr, **kwargs)
+    plt.errorbar(center, h, xerr=xerr, yerr=yerr, capsize=0, markersize=0, **kwargs)
 
     return center, (yerr[0], h, yerr[1]), area
 
