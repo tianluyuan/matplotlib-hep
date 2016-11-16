@@ -80,13 +80,11 @@ def histpoints(x, bins=None, xerr='binwidth', yerr='sqrt', density=None,
         yerr = yerr / area
         area = 1.
 
-    if 'color' not in kwargs:
-        kwargs['color'] = 'black'
-
     if 'fmt' not in kwargs:
         kwargs['fmt'] = 'o'
 
-    plt.errorbar(center, h, xerr=xerr, yerr=yerr, capsize=0, markersize=0, **kwargs)
+    plt.errorbar(center, h, xerr=xerr, yerr=yerr, capsize=0,
+                 markersize=0, elinewidth=1.0, **kwargs)
 
     return center, (yerr[0], h, yerr[1]), area
 
