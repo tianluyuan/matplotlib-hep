@@ -9,7 +9,7 @@ import scipy as sp
 import numpy as np
 
 
-__all__ = ['histpoints', 'make_split', 'calc_nbins', 'plot_pull']
+__all__ = ['histpoints', 'make_split', 'calc_nbins', 'plot_pull', 'centers', 'calc_bins']
 
 def centers(x):
     return (x[:-1]+x[1:])*0.5
