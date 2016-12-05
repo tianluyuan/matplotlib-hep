@@ -11,9 +11,16 @@ import numpy as np
 
 __all__ = ['histpoints', 'make_split', 'calc_nbins', 'plot_pull']
 
-def calc_nbins(x, maximum=150):
-    n =  (max(x) - min(x)) / (2 * len(x)**(-1/3) * (np.percentile(x, 75) - np.percentile(x, 25)))
-    return np.floor(min(n, maximum))
+def centers(x):
+    return (x[:-1]+x[1:])*0.5
+
+def calc_nbins(x):
+    n =  (np.max(x) - np.min(x)) / (2 * len(x)**(-1/3) * (np.percentile(x, 75) - np.percentile(x, 25)))
+    return np.floor(n)
+
+def calc_bins(x):
+    nbins = calc_nbins(x)
+    return np.linspace(np.min(x), np.max(x)+2, num=nbins+1)
 
 def poisson_limits(N, kind, confidence=0.6827):
     alpha = 1 - confidence
@@ -61,7 +68,7 @@ def histpoints(x, bins=None, xerr='binwidth', yerr='sqrt', density=None,
 
     h, bins = np.histogram(x, bins=bins, weights=weights)
     width = bins[1:] - bins[:-1]
-    center = (bins[:-1] + bins[1:]) / 2
+    center = centers(bins)
     area = sum(h * width)
 
     if weights is not None and yerr == 'sumw2':
@@ -84,7 +91,7 @@ def histpoints(x, bins=None, xerr='binwidth', yerr='sqrt', density=None,
         kwargs['fmt'] = 'o'
 
     plt.errorbar(center, h, xerr=xerr, yerr=yerr, capsize=0,
-                 markersize=0, elinewidth=1.0, **kwargs)
+                 markersize=0, **kwargs)
 
     return center, (yerr[0], h, yerr[1]), area
 
