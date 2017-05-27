@@ -35,7 +35,7 @@ def poisson_limits(N, kind, confidence=0.6827):
     if kind == 'gamma':
         lower = stats.gamma.ppf(alpha / 2, N)
         upper = stats.gamma.ppf(1 - alpha / 2, N + 1)
-    elif kind == 'sqrt':
+    elif kind == 'sqrt' or kind == 'sumw2':
         err = np.sqrt(N)
         lower = N - err
         upper = N + err
@@ -56,8 +56,8 @@ def histpoints(x, bins=None, xerr='binwidth', yerr='sqrt', density=None,
     By default, vertical poisson error bars are calculated using the
     gamma distribution.
 
-    Horizontal error bars are omitted by default.
-    These can be enabled using the *xerr* argument.
+    Horizontal error bars are set to 'binwidth' by default.
+    These can be disabled using the *xerr* argument.
     Use ``xerr='binwidth'`` to draw horizontal error bars that indicate
     the width of each histogram bin.
 
