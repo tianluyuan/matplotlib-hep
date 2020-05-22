@@ -22,7 +22,7 @@ def edges(x):
 
 def calc_nbins(x):
     n =  (np.max(x) - np.min(x)) / (2 * len(x)**(-1./3) * (np.percentile(x, 75) - np.percentile(x, 25)))
-    return np.floor(n)
+    return np.floor(n).astype(int)
 
 def calc_bins(x):
     nbins = calc_nbins(x)
